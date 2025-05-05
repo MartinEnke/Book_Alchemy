@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Add Author</title>
+
+<body>
+    <h1>Add Author</h1>
+
+    <!-- Display Success message -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('add_author') }}" method="POST">
+        <label for="name">Author Name:</label>
+        <input type="text" name="name" id="name" required><br>
+
+        <label for="birth_date">Birth Date:</label>
+        <input type="date" name="birth_date" id="birth_date" required><br>
+
+        <label for="date_of_death">Date of Death (Optional):</label>
+        <input type="date" name="date_of_death" id="date_of_death"><br>
+
+        <button type="submit">Add Author</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('add_book') }}">Add Book</a>
+
+</body>
+</html>
