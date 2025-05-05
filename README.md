@@ -1,4 +1,4 @@
-# Book Library
+# Book Alchemy
 
 Welcome to the **Book Library**! 
 This is a Flask-based web application designed to help users manage a library of books.
@@ -37,8 +37,8 @@ Ensure you have the following installed on your machine:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/book-library.git
-   cd book-library
+   git clone https://github.com/yourusername/book-alchemy.git
+   cd book-alchemy
    
 2. Create a virtual environment:
 
