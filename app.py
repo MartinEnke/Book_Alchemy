@@ -6,7 +6,7 @@ import requests
 
 
 # Initialize the Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = secrets.token_hex(16)  # Required for flash messages and cookies
 
 # Configuration for the database
@@ -19,20 +19,28 @@ db.init_app(app)
 
 @app.route("/")
 def home():
-    sort_by = request.args.get('sort_by', 'title')  # Default to 'title' if no parameter is provided
+    # Get search query and sorting preference
+    search_query = request.args.get('search', '')  # Default to an empty string if no search query
+    sort_by = request.args.get('sort_by', 'title')  # Default to sorting by title if not provided
 
-    if sort_by == 'author':
-        # Sort by author name (ascending order)
-        books = Book.query.join(Author).order_by(Author.name).all()
+    if search_query:
+        # If there's a search query, filter books by title or author name using LIKE
+        books = Book.query.join(Author).filter(
+            (Book.title.ilike(f'%{search_query}%')) |  # Search title
+            (Author.name.ilike(f'%{search_query}%'))  # Search author
+        ).all()
     else:
-        # Sort by title (ascending order)
-        books = Book.query.order_by(Book.title).all()
+        # If no search query, just return all books
+        if sort_by == 'author':
+            books = Book.query.join(Author).order_by(Author.name).all()
+        else:
+            books = Book.query.order_by(Book.title).all()
 
+    # Clean ISBN and fetch cover images for each book
     for book in books:
-        # Clean ISBN to remove non-numeric characters
         book.isbn = ''.join([char for char in book.isbn if char.isdigit()])  # Clean ISBN
 
-        # Query Open Library's search API to get cover URL (same as before)
+        # Query Open Library's search API to get cover URL
         url = f"https://openlibrary.org/search.json?isbn={book.isbn}"
         response = requests.get(url)
 
@@ -51,7 +59,6 @@ def home():
             book.cover_url = 'https://via.placeholder.com/150x200?text=No+Cover+Available'
 
     return render_template('home.html', books=books, sort_by=sort_by)
-
 
 
 @app.route('/add_author', methods=['GET', 'POST'])
@@ -105,6 +112,29 @@ def add_book():
         return redirect(url_for('add_book'))
 
     return render_template('add_book.html', authors=authors)
+
+
+@app.route("/book/<int:book_id>/delete", methods=["POST"])
+def delete_book(book_id):
+    # Fetch the book by its ID
+    book = Book.query.get_or_404(book_id)
+
+    # Get the author of the book
+    author = book.author
+
+    # Delete the book from the database
+    db.session.delete(book)
+    db.session.commit()
+
+    # Check if the author has any other books in the library
+    if not Author.query.filter_by(id=author.id).first().books:
+        # If the author has no other books, delete the author as well
+        db.session.delete(author)
+        db.session.commit()
+
+    # Flash a success message and redirect back to the homepage
+    flash(f"The book '{book.title}' has been successfully deleted!", 'success')
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':

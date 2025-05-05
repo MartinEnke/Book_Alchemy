@@ -1,0 +1,130 @@
+/* Overall page style: parchment background with image and graceful fallback */
+body {
+  /* Fallback background color (parchment tone) and image */
+  background-color: #f4ecd8;
+  background-image: url("/static/background-image.png"), linear-gradient(to bottom, #f4ecd8, #e8dcc0);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+  /* Typography: classic serif font for a book-like feel */
+  font-family: 'Libre Baskerville', Georgia, serif;
+  color: #4e342e;  /* dark brown text for good contrast on light background */
+  margin: 0;
+}
+
+/* Header styling */
+header {
+  text-align: center;
+  padding: 20px;
+  /* Semi-transparent background to ensure text is readable over image */
+  background-color: rgba(245, 240, 230, 0.85);
+  border-bottom: 2px solid #a67c52;  /* a subtle brown border line for a classic touch */
+}
+header h1 {
+  margin: 0;
+  font-size: 2em;
+  color: #5a4636;  /* slightly lighter brown for the heading text */
+}
+
+/* Controls (search & sort) section styling */
+#controls {
+  max-width: 800px;
+  margin: 20px auto;
+  text-align: center;
+}
+#controls input[type="text"],
+#controls select {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  padding: 5px 8px;
+  font-size: 1em;
+  border: 1px solid #ccbfa8;
+  border-radius: 4px;
+  /* Light background to match the theme */
+  background-color: #fdfaf0;
+  color: #4e342e;
+  margin-right: 5px;
+}
+#controls select {
+  /* Ensure dropdown text is visible and styled similarly */
+  color: #4e342e;
+}
+#controls button {
+  padding: 6px 12px;
+  font-size: 1em;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  border: none;
+  border-radius: 4px;
+  background-color: #8B5E3C;  /* warm brown for buttons (e.g., SaddleBrown tone) */
+  color: #fff;
+  cursor: pointer;
+}
+#controls button:hover {
+  background-color: #A07047;  /* slightly lighter brown on hover */
+}
+
+/* Book list and card styles */
+#book-list {
+  max-width: 1000px;
+  margin: 30px auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  /* add some bottom padding for spacing at end of page */
+  padding-bottom: 20px;
+}
+.book-card {
+  background-color: rgba(255, 255, 255, 0.8);  /* translucent light background on cards to stand out from page */
+  border: 1px solid #d3c5a5;
+  border-radius: 5px;
+  width: 180px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.cover-container {
+  /* Reserve space for cover images to keep cards even (optional fixed height if needed) */
+  /* min-height: 240px; */  /* uncomment if you want to enforce a minimum height for cover area */
+}
+.book-cover {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+.book-cover.placeholder {
+  /* You can add styles for placeholder images if desired (e.g., a tint or icon) */
+  opacity: 0.9;
+}
+.book-info {
+  margin-top: 10px;
+}
+.book-title {
+  font-size: 1.1em;
+  margin: 0;
+  color: #4e342e;
+}
+.book-author, .book-year {
+  margin: 4px 0;
+  font-style: italic;
+  color: #5a4636;
+}
+
+/* Delete button styling (within each book card) */
+.delete-form {
+  margin-top: 10px;
+}
+.delete-button {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 0.9em;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #8B0000;  /* dark red/maroon for delete action */
+  color: #fff;
+  cursor: pointer;
+}
+.delete-button:hover {
+  background-color: #a30000;
+}
