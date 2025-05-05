@@ -4,7 +4,6 @@ import secrets
 from datetime import datetime
 import requests
 
-
 # Initialize the Flask app
 app = Flask(__name__, static_folder='static')
 app.secret_key = secrets.token_hex(16)  # Required for flash messages and cookies
@@ -19,18 +18,23 @@ db.init_app(app)
 
 @app.route("/")
 def home():
-    # Get search query and sorting preference
+    """
+    Renders the homepage with a list of books, with optional sorting and searching.
+
+    The books can be filtered by title or author, and the list can be sorted by title or author.
+    For each book, its cover image is fetched using the ISBN, and a placeholder is used if the cover is unavailable.
+    """
     search_query = request.args.get('search', '')  # Default to an empty string if no search query
     sort_by = request.args.get('sort_by', 'title')  # Default to sorting by title if not provided
 
+    # Search query functionality
     if search_query:
-        # If there's a search query, filter books by title or author name using LIKE
         books = Book.query.join(Author).filter(
             (Book.title.ilike(f'%{search_query}%')) |  # Search title
             (Author.name.ilike(f'%{search_query}%'))  # Search author
         ).all()
     else:
-        # If no search query, just return all books
+        # Sort books based on user preference
         if sort_by == 'author':
             books = Book.query.join(Author).order_by(Author.name).all()
         else:
@@ -63,6 +67,12 @@ def home():
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
+    """
+    Adds a new author to the database.
+
+    The form allows the user to input the author's name, birth date, and optional death date.
+    A new Author object is created and saved to the database upon successful form submission.
+    """
     if request.method == 'POST':
         # Get form data
         name = request.form['name']
@@ -89,13 +99,18 @@ def add_author():
 
     return render_template('add_author.html')
 
-# Route to add a book
+
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
+    """
+    Adds a new book to the library, associated with an author.
+
+    The form allows the user to input the book's ISBN, title, publication year, and select an author.
+    A new Book object is created and saved to the database upon successful form submission.
+    """
     authors = Author.query.all()  # Get all authors from the database
     if request.method == 'POST':
         # Get form data
-
         isbn = request.form['isbn']
         title = request.form['title']
         publication_year = request.form['publication_year']
@@ -116,6 +131,12 @@ def add_book():
 
 @app.route("/book/<int:book_id>/delete", methods=["POST"])
 def delete_book(book_id):
+    """
+    Deletes a specific book from the database.
+
+    If the book's author has no other books in the library, the author is also deleted.
+    After the deletion, the user is redirected to the homepage with a success message.
+    """
     # Fetch the book by its ID
     book = Book.query.get_or_404(book_id)
 
@@ -138,9 +159,7 @@ def delete_book(book_id):
 
 
 if __name__ == '__main__':
-#     # Create all tables in the database
-#     with app.app_context():
-#         print("Creating tables...")  # Debugging line to confirm the code is running
-#         db.create_all()
-#         print("Tables created!")  # Confirmation message
-     app.run(port=5029, debug=True)
+    # Uncomment if you want to automatically create tables on first run
+    # with app.app_context():
+    #     db.create_all()
+    app.run(port=5029, debug=True)
