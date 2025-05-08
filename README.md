@@ -3,7 +3,7 @@
 Welcome to the **Book Library**! 
 This is a Flask-based web application designed to help users manage a library of books.
 
-![Banner](banner.png)
+![Banner](banner2.png)
 
 ## Features
 

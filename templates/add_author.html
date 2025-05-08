@@ -1,40 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Add Author</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="form-page">
+      <h1>Add Author</h1>
 
-<body>
-    <h1>Add Author</h1>
-
-    <!-- Display Success message -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
+          <div class="flash-messages">
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
         {% endif %}
-    {% endwith %}
+      {% endwith %}
 
-    <form action="{{ url_for('add_author') }}" method="POST">
-        <label for="name">Author Name:</label>
-        <input type="text" name="name" id="name" required><br>
+      <form class="card form-card" action="{{ url_for('add_author') }}" method="POST">
+        <div class="form-group">
+          <label for="name">Author Name</label>
+          <input type="text" name="name" id="name" required />
+        </div>
 
-        <label for="birth_date">Birth Date:</label>
-        <input type="date" name="birth_date" id="birth_date" required><br>
+        <div class="form-group">
+          <label for="birth_date">Birth Date</label>
+          <input type="date" name="birth_date" id="birth_date" required />
+        </div>
 
-        <label for="date_of_death">Date of Death (Optional):</label>
-        <input type="date" name="date_of_death" id="date_of_death"><br>
+        <div class="form-group">
+          <label for="date_of_death">Date of Death <span class="optional">(optional)</span></label>
+          <input type="date" name="date_of_death" id="date_of_death" />
+        </div>
 
-        <button type="submit">Add Author</button>
-    </form>
+        <button type="submit" class="btn-primary">Add Author</button>
+      </form>
 
-    <br>
-    <a href="{{ url_for('add_book') }}">Add Book</a>
-
-</body>
+      <p class="alt-action">
+        <a href="{{ url_for('add_book') }}">Add Book → </a>
+      </p>
+    </div>
+  </body>
 </html>

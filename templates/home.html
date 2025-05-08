@@ -17,19 +17,19 @@
 
   <!-- Controls section for sorting and searching -->
   <section id="controls">
+  <div class="controls-inner">
+    <a href="{{ url_for('add_author') }}" class="btn-minimal">Add Author</a>
     <form method="GET" action="{{ url_for('home') }}">
-      <!-- Search field -->
       <input type="text" name="q" placeholder="Search books..." />
-      <!-- Sort dropdown -->
       <select name="sort">
         <option value="title">Title</option>
         <option value="author">Author</option>
         <option value="year">Year</option>
       </select>
-      <!-- Submit button for search/sort -->
       <button type="submit">Go</button>
     </form>
-  </section>
+  </div>
+</section>
 
   <!-- Book list section: each book is displayed as a card -->
   <section id="book-list">
@@ -58,5 +58,6 @@
       </div>
     {% endfor %}
   </section>
+
 </body>
 </html>

@@ -100,33 +100,106 @@ def add_author():
     return render_template('add_author.html')
 
 
+from flask import Flask, render_template, request, redirect, url_for, flash
+from data_models import db, Author, Book
+import requests
+from datetime import datetime
+import os
+
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
     """
-    Adds a new book to the library, associated with an author.
-
-    The form allows the user to input the book's ISBN, title, publication year, and select an author.
-    A new Book object is created and saved to the database upon successful form submission.
+    Adds a new book to the library, auto‑populating from ISBN or title when possible.
     """
-    authors = Author.query.all()  # Get all authors from the database
     if request.method == 'POST':
-        # Get form data
-        isbn = request.form['isbn']
-        title = request.form['title']
-        publication_year = request.form['publication_year']
-        author_id = request.form['author_id']  # Author selected from dropdown
+        # Raw form values
+        isbn_raw           = request.form.get('isbn', '').strip()
+        title_input        = request.form.get('title', '').strip()
+        pub_year_input     = request.form.get('publication_year', '').strip()
+        author_name_input  = request.form.get('author_name', '').strip()
 
-        # Create a new book object
-        new_book = Book(isbn=isbn, title=title, publication_year=publication_year, author_id=author_id)
+        # Clean up ISBN (allow digits + X)
+        isbn = ''.join(ch for ch in isbn_raw if ch.isdigit() or ch.upper() == 'X')
 
-        # Add the new book to the database
+        # Fallback variables we’ll fill
+        title   = title_input
+        pub_year = pub_year_input
+        author_name = author_name_input
+        cover_url = None
+
+        # 1) If we have an ISBN and any field is missing, lookup by ISBN:
+        if isbn and (not title or not pub_year or not author_name):
+            ol_url = (
+                f"https://openlibrary.org/api/books?"
+                f"bibkeys=ISBN:{isbn}&format=json&jscmd=data"
+            )
+            resp = requests.get(ol_url, timeout=5)
+            if resp.ok:
+                data = resp.json().get(f"ISBN:{isbn}", {})
+                title       = title       or data.get('title', title)
+                pub_date    = data.get('publish_date', '')
+                # Attempt to parse a year out of publish_date
+                if not pub_year and pub_date:
+                    try:
+                        pub_year = datetime.strptime(pub_date, '%B %d, %Y').year
+                    except Exception:
+                        pub_year = pub_date[-4:]
+                if not author_name and data.get('authors'):
+                    author_name = data['authors'][0].get('name', author_name)
+                cover_url = data.get('cover', {}).get('large') \
+                            or data.get('cover', {}).get('medium')
+
+        # 2) Else, if no ISBN but a title was given, lookup by title:
+        elif not isbn and title:
+            search_url = f"https://openlibrary.org/search.json?title={requests.utils.quote(title)}&limit=1"
+            resp = requests.get(search_url, timeout=5)
+            if resp.ok:
+                docs = resp.json().get('docs', [])
+                if docs:
+                    doc = docs[0]
+                    # Extract ISBN if available
+                    isbns = doc.get('isbn', [])
+                    if isbns:
+                        isbn = isbns[0]
+                    # Fill missing fields
+                    title       = title or doc.get('title', title)
+                    if not pub_year and doc.get('first_publish_year'):
+                        pub_year = doc['first_publish_year']
+                    if not author_name and doc.get('author_name'):
+                        author_name = doc['author_name'][0]
+                    cover_id = doc.get('cover_i')
+                    if cover_id:
+                        cover_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
+
+        # 3) Ensure required fields
+        if not (title and pub_year and author_name):
+            flash("Please provide at least a Title (or ISBN) and Author.", "error")
+            return render_template('add_book.html')
+
+        # 4) Find or create author
+        author = Author.query.filter_by(name=author_name).first()
+        if not author:
+            author = Author(name=author_name)
+            db.session.add(author)
+            db.session.flush()
+
+        # 5) Create the book record
+        new_book = Book(
+            isbn=isbn,
+            title=title,
+            publication_year=pub_year,
+            author_id=author.id,
+            #cover_url=cover_url or 'https://via.placeholder.com/150x200?text=No+Cover'
+        )
         db.session.add(new_book)
         db.session.commit()
 
         flash('Book added successfully!', 'success')
         return redirect(url_for('add_book'))
 
-    return render_template('add_book.html', authors=authors)
+    # GET
+    return render_template('add_book.html')
+
 
 
 @app.route("/book/<int:book_id>/delete", methods=["POST"])

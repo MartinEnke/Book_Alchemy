@@ -128,3 +128,143 @@ header h1 {
 .delete-button:hover {
   background-color: #a30000;
 }
+
+/* Lay out button + form horizontally */
+.controls-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* keeps the whole group centered on page */
+  gap: 10px;               /* space between button and form */
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+/* Make the form itself a flex row too */
+.controls-inner form {
+  display: flex;
+  align-items: center;
+  gap: 5px;  /* space between input, select, and Go */
+}
+
+/* Tidy up default margins */
+.controls-inner form input,
+.controls-inner form select,
+.controls-inner form button {
+  margin: 0;
+}
+
+/* Minimal “Add Author” button */
+.btn-minimal {
+  padding: 6px 12px;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1em;
+  text-decoration: none;
+  border: 1px solid #8B5E3C;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #8B5E3C;
+  transition: background-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+.btn-minimal:hover {
+  background-color: #8B5E3C;
+  color: #fff;
+}
+
+/* Center page and constrain width */
+.form-page {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+/* Headline spacing */
+.form-page h1 {
+  margin-bottom: 24px;
+  font-size: 1.8em;
+  color: #b2854f;
+}
+
+/* Flash message styling */
+.flash-messages {
+  margin-bottom: 16px;
+}
+.flash {
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+}
+.flash.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Card wrapper for form */
+.form-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d3c5a5;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  text-align: left;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #4e342e;
+}
+.form-group .optional {
+  font-weight: normal;
+  font-size: 0.85em;
+  color: #777;
+}
+.form-group input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccbfa8;
+  border-radius: 4px;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1em;
+  background-color: #fdfaf0;
+  color: #4e342e;
+}
+
+/* Primary button */
+.btn-primary {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1em;
+  border: none;
+  border-radius: 4px;
+  background-color: #8B5E3C;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-primary:hover {
+  background-color: #A07047;
+}
+
+/* Alternative link below form */
+.alt-action {
+  margin-top: 20px;
+}
+.alt-action a {
+  color: #8B5E3C;
+  text-decoration: none;
+  font-size: 0.95em;
+}
+.alt-action a:hover {
+  text-decoration: underline;
+}
