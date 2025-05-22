@@ -27,6 +27,17 @@ header h1 {
   color: #5a4636;  /* slightly lighter brown for the heading text */
 }
 
+/* Header link styling */
+.header-link {
+  color: #5A3A22; /* nice rich brown, adjust if needed */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.header-link:hover {
+  color: #A67B5B; /* lighter brown on hover */
+}
+
 /* Controls (search & sort) section styling */
 #controls {
   max-width: 800px;
