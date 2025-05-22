@@ -17,22 +17,25 @@
 
   <!-- Controls section for sorting and searching -->
   <section id="controls">
-  <div class="controls-inner">
-    <a href="{{ url_for('add_author') }}" class="btn-minimal">Add Author</a>
-    <form method="GET" action="{{ url_for('home') }}">
-      <input type="text" name="q" placeholder="Search books..." />
-      <select name="sort">
-        <option value="title">Title</option>
-        <option value="author">Author</option>
-        <option value="year">Year</option>
-      </select>
-      <button type="submit">Go</button>
-    </form>
-  </div>
-</section>
+    <div class="controls-inner">
+      <a href="{{ url_for('add_author') }}" class="btn-minimal">Add Author</a>
+      <form method="GET" action="{{ url_for('home') }}">
+        <input type="text" name="search" placeholder="Search by title or author..." value="{{ request.args.get('search', '') }}" />
+        <select name="sort_by">
+          <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title</option>
+          <option value="author" {% if sort_by == 'author' %}selected{% endif %}>Author</option>
+        </select>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </section>
 
   <!-- Book list section: each book is displayed as a card -->
   <section id="book-list">
+    {% if no_results %}
+      <p>No books match your search criteria.</p>
+    {% endif %}
+
     {% for book in books %}
       <div class="book-card">
         <!-- Book cover (with placeholder fallback if no cover URL) -->
@@ -47,8 +50,8 @@
         <div class="book-info">
           <h2 class="book-title">{{ book.title }}</h2>
           <p class="book-author">by {{ book.author }}</p>
-          {% if book.year %}
-            <p class="book-year">{{ book.year }}</p>
+          {% if book.publication_year %}
+            <p class="book-year">{{ book.publication_year }}</p>
           {% endif %}
         </div>
         <!-- Delete button (styled to match theme) -->
@@ -58,6 +61,5 @@
       </div>
     {% endfor %}
   </section>
-
 </body>
 </html>

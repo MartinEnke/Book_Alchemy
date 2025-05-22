@@ -18,51 +18,48 @@ db.init_app(app)
 
 @app.route("/")
 def home():
-    """
-    Renders the homepage with a list of books, with optional sorting and searching.
+    search_query = request.args.get('search', '')  # Matches the input's name="search"
+    sort_by = request.args.get('sort_by', 'title')
+    no_results = False  # Track if no results found
 
-    The books can be filtered by title or author, and the list can be sorted by title or author.
-    For each book, its cover image is fetched using the ISBN, and a placeholder is used if the cover is unavailable.
-    """
-    search_query = request.args.get('search', '')  # Default to an empty string if no search query
-    sort_by = request.args.get('sort_by', 'title')  # Default to sorting by title if not provided
+    # Base query
+    query = Book.query.join(Author)
 
-    # Search query functionality
+    # Apply search filter if needed
     if search_query:
-        books = Book.query.join(Author).filter(
-            (Book.title.ilike(f'%{search_query}%')) |  # Search title
-            (Author.name.ilike(f'%{search_query}%'))  # Search author
-        ).all()
+        query = query.filter(
+            (Book.title.ilike(f'%{search_query}%')) |
+            (Author.name.ilike(f'%{search_query}%'))
+        )
+
+    # Apply sorting
+    if sort_by == 'author':
+        query = query.order_by(Author.name)
     else:
-        # Sort books based on user preference
-        if sort_by == 'author':
-            books = Book.query.join(Author).order_by(Author.name).all()
-        else:
-            books = Book.query.order_by(Book.title).all()
+        query = query.order_by(Book.title)
 
-    # Clean ISBN and fetch cover images for each book
+    books = query.all()
+
+    # Show 'no results' message if needed
+    if search_query and not books:
+        no_results = True
+
+    # Fetch cover images
     for book in books:
-        book.isbn = ''.join([char for char in book.isbn if char.isdigit()])  # Clean ISBN
-
-        # Query Open Library's search API to get cover URL
+        book.isbn = ''.join([char for char in book.isbn if char.isdigit()])
         url = f"https://openlibrary.org/search.json?isbn={book.isbn}"
         response = requests.get(url)
-
         if response.status_code == 200:
             book_data = response.json()
-            if book_data['num_found'] > 0:
-                first_book = book_data['docs'][0]
-                if 'cover_i' in first_book:
-                    cover_id = first_book['cover_i']
-                    book.cover_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
-                else:
-                    book.cover_url = 'https://via.placeholder.com/150x200?text=No+Cover+Available'
+            if book_data['num_found'] > 0 and 'cover_i' in book_data['docs'][0]:
+                cover_id = book_data['docs'][0]['cover_i']
+                book.cover_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
             else:
                 book.cover_url = 'https://via.placeholder.com/150x200?text=No+Cover+Available'
         else:
             book.cover_url = 'https://via.placeholder.com/150x200?text=No+Cover+Available'
 
-    return render_template('home.html', books=books, sort_by=sort_by)
+    return render_template('home.html', books=books, sort_by=sort_by, no_results=no_results)
 
 
 @app.route('/add_author', methods=['GET', 'POST'])
